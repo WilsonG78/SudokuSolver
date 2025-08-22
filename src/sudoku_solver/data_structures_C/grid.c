@@ -2,7 +2,6 @@
 
 grid* init_grid(int **arr, int size){
     Array2D *new_array = init_array_2d(size,size);
-    Array2D *new_orginal_array = init_array_2d(size,size);
 
     //Init sets Sets contains every posible value in this row or col or box
     set *new_rows = malloc(size * sizeof(set));
@@ -14,6 +13,8 @@ grid* init_grid(int **arr, int size){
         init_set(new_boxes +i);
         for(int j =0 ; j< size; j++) {
             insert_set(new_rows +i , j+1);
+            insert_set(new_cols +i , j+1);
+            insert_set(new_boxes +i , j+1);
         }
     }
     int new_to_find = 0;
@@ -22,7 +23,6 @@ grid* init_grid(int **arr, int size){
         for(int j =0 ; j < size; j++){
             int val = arr[i][j];
             set_value_array_2d(new_array,i,j,val);
-            set_value_array_2d(new_orginal_array,i,j,val);
             if( val != 0){
                 new_to_find++;
                 delete_set(new_rows+i,val);
@@ -33,7 +33,6 @@ grid* init_grid(int **arr, int size){
     }
     grid *new_grid = (grid*)malloc(sizeof(grid));
     new_grid->array =new_array;
-    new_grid->orginal_array = new_orginal_array;
     new_grid->rows = new_rows;
     new_grid->cols = new_cols;
     new_grid->boxes = new_boxes;
@@ -45,7 +44,6 @@ grid* init_grid(int **arr, int size){
 
 void free_grid(grid *g){
     free_array_2d(g->array);
-    free_array_2d(g->orginal_array);
     for(int i =0 ; i < g->grid_size;i++){
         free_set(g->rows +i);
         free_set(g->cols +i);
@@ -57,6 +55,60 @@ void free_grid(grid *g){
     free(g);
 }
 
+static int num_digits(int x) {
+    int count = 1;
+    if (x < 0) x = -x; 
+    while (x >= 10) {
+        x /= 10;
+        count++;
+    }
+    return count;
+}
+
+void print_hline(int *cell_w,int n) {
+    int b = (int)sqrt(n);
+    for (int block = 0; block < n; block += b) {
+        printf("+");
+        for (int k = 0; k < (*cell_w + 1) * b + 1; k++) { 
+            printf("-");
+        }
+    }
+    printf("+\n");
+}
+
+void print_grid(grid *g) {
+    int n = g->grid_size;
+    int b = (int)sqrt(n); 
+    printf("\n");
+
+    
+    int cell_w = 1;
+    for (int i = 0; i < n; i++) {
+        for (int j = 0; j < n; j++) {
+            int d = num_digits(get_value_array_2d(g->array,i,j));
+            if (d > cell_w) cell_w = d;
+        }
+    }
+
+    
+
+    
+    print_hline(&cell_w,n);
+    for (int i = 0; i < n; i++) {
+        for (int start = 0; start < n; start += b) {
+            printf("|");
+            for (int j = start; j < start + b; j++) {
+                
+                printf(" %*d", cell_w,get_value_array_2d(g->array,i,j));
+            }
+            printf(" ");
+        }
+        printf("|\n");
+        if ((i + 1) % b == 0) {
+            print_hline(&cell_w,n);
+        }
+    }
+}
 
 
 

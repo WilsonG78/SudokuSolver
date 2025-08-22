@@ -81,7 +81,7 @@ class Grid:
 
 
 if __name__ == "__main__":
-    new_grid = Grid(file_name= '../sudokus/1sudoku.txt')
+    new_grid = Grid(file_name= '../../sudokus/1sudoku.txt')
     print(new_grid)
 
 

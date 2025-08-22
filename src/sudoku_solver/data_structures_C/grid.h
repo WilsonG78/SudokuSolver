@@ -15,3 +15,4 @@ typedef struct grid{
 grid* init_grid(int **arr, int size);
 void free_grid(grid *g);
 int box_id_grid(int size, int i ,int j);
+void print_grid(grid *g);
