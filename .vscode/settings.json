@@ -1,0 +1,13 @@
+{
+    "python.testing.pytestArgs": [
+        "src"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true,
+    "files.associations": {
+        "stdlib.h": "c",
+        "set": "c",
+        "set.h": "c",
+        "grid.h": "c"
+    }
+}

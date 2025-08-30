@@ -17,9 +17,6 @@ int solve_dfs_sudoku_c(grid *g, int row, int col) {
     }
 
     for (int num = 1; num <= g->grid_size; num++) {
-        //printf("row %d ",contains_set(g->rows + row, num));
-        //printf("col %d ",contains_set(g->cols + col, num));
-        //printf("box %d\n",contains_set(g->boxes + box_id_grid(g->grid_size, row, col), num));
         if (contains_set(g->rows + row, num) &&
             contains_set(g->cols + col, num) &&
             contains_set(g->boxes + box_id_grid(g->grid_size, row, col), num)) {
@@ -48,9 +45,7 @@ int main(){
     char *file_name = "../../sudokus/1sudoku.txt";
     int size;
     int **arr = read_and_validate_sudoku(file_name,&size);
-    printf("%d",size);
     grid* main_grid = init_grid(arr,size);
-    //printf("%d",main_grid->grid_size);
     print_grid(main_grid);
     solve_dfs_sudoku_c(main_grid,0,0);
     print_grid(main_grid);

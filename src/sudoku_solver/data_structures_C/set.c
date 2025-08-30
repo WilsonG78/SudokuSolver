@@ -262,9 +262,9 @@ void delete_set(set *tree , int val){
     }
     else{
         Node *succ = min_in_subtree(curr->right);
-        curr->val = succ->val; // copy successor's value
-        // delete successor (succ has at most one child)
-        Node *child = succ->right; // successor can't have left child
+        curr->val = succ->val; 
+
+        Node *child = succ->right; 
         node_to_rebalance = succ->parent;
         if (succ->parent->left == succ) succ->parent->left = child;
         else succ->parent->right = child;
