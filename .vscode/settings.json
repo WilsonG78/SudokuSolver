@@ -8,6 +8,14 @@
         "stdlib.h": "c",
         "set": "c",
         "set.h": "c",
-        "grid.h": "c"
+        "grid.h": "c",
+        "read_data.h": "c",
+        "array": "c",
+        "xutility": "c",
+        "limits": "c",
+        "utility": "c",
+        "initializer_list": "c",
+        "xtree": "c",
+        "vector": "c"
     }
 }

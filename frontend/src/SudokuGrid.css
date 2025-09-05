@@ -1,0 +1,26 @@
+.sudoku-grid {
+  display: grid;
+  gap: 2px;
+  width: fit-content;
+  margin: 20px auto;
+  border: 2px solid #333;
+}
+
+.sudoku-row {
+  display: grid;
+  gap: 2px;
+}
+
+.sudoku-cell {
+  width: 40px;
+  height: 40px;
+  text-align: center;
+  font-size: 18px;
+  font-weight: bold;
+  border: 1px solid #888;
+  outline: none;
+}
+
+.sudoku-cell:focus {
+  border: 2px solid #007bff;
+}

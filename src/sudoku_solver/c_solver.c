@@ -3,6 +3,7 @@
 #include "data_structures_C/array_2d.h"
 #include "data_structures_C/grid.h"
 #include "data_structures_C/read_data.h"
+#include "data_structures_C/DLX.h"
 
 
 int solve_dfs_sudoku_c(grid *g, int row, int col) {
@@ -39,6 +40,13 @@ int solve_dfs_sudoku_c(grid *g, int row, int col) {
     return 0; 
 }
 
+
+int solve_dlx_naive_sudoku_c(grid *g, int row,int col){
+    Array2D *dlx_matrix = transform_grid_to_DLX_naive(g);
+    DLX *dlx = init_DLX(dlx_matrix);
+    ListOfLists *solutions = solve_dlx(dlx);
+    //TODO
+}
 
 
 int main(){
