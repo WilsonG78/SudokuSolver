@@ -2,18 +2,9 @@
 #include "array_2d.h"
 #include "ListOfLists.h"
 #include "grid.h"
+#include "node.h"
 //Data Structure to implement X Knuth's Algorithm
-typedef struct Node
-{
-    Node *left;
-    Node *right;
-    Node *up;
-    Node *down;
-    struct ColNode *column;
-    int rowID;
-    int colID;
 
-}Node;
 
 typedef struct ColNode{
     Node *node;
@@ -33,8 +24,8 @@ typedef struct DLX{
 
 typedef struct Vertex{
     Node *data;
-    Vertex *next;
-    Vertex *prev;
+    struct Vertex *next;
+    struct Vertex *prev;
 }Vertex;
 
 typedef struct Stack
@@ -48,4 +39,4 @@ DLX* init_DLX(Array2D* problem_matrix);
 void free_DLX(DLX *dlx);
 Array2D* transform_grid_to_DLX_naive(grid *g);
 ListOfLists * solve_dlx(DLX *dlx);
-
+Array2D* from_list_of_lists_to_array(DLX *dlx,ListOfLists *solutions,int solution_index,int grid_size);

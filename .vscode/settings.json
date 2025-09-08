@@ -16,6 +16,7 @@
         "utility": "c",
         "initializer_list": "c",
         "xtree": "c",
-        "vector": "c"
+        "vector": "c",
+        "listoflists.h": "c"
     }
 }

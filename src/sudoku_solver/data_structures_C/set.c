@@ -6,8 +6,8 @@
 
 
 //private
-Node* init_node( int val , Node *left , Node *right,Node *parent){
-    Node *new_node = (Node *)malloc(sizeof(Node));
+SetNode* init_node( int val , SetNode *left , SetNode *right,SetNode *parent){
+    SetNode *new_node = (SetNode *)malloc(sizeof(SetNode));
     if(!new_node){
         perror("malloc failed");
         exit(EXIT_FAILURE);
@@ -23,7 +23,7 @@ Node* init_node( int val , Node *left , Node *right,Node *parent){
 }
 
 //private
-void update_height(Node *node){
+void update_height(SetNode *node){
     if( node){
         int left_h = node->left ? node->left->height : 0;
         int right_h = node->right ? node->right->height : 0 ;
@@ -33,7 +33,7 @@ void update_height(Node *node){
 }
 
 //private
-void update_height_upwards(Node *node) {
+void update_height_upwards(SetNode *node) {
     while (node) {
         int left_h = node->left ? node->left->height : 0;
         int right_h = node->right ? node->right->height : 0;
@@ -41,10 +41,10 @@ void update_height_upwards(Node *node) {
         node = node->parent;
     }
 }
-void right_rotate(set *tree ,Node *node){
+void right_rotate(set *tree ,SetNode *node){
     
-    Node *new_root = node->left;
-    Node *tmp = new_root->right;
+    SetNode *new_root = node->left;
+    SetNode *tmp = new_root->right;
 
     new_root->right = node;
     node->left = tmp;
@@ -68,9 +68,9 @@ void right_rotate(set *tree ,Node *node){
 
 }
 //private
-void left_rotate(set *tree ,Node *node){
-    Node *new_root = node->right;
-    Node *tmp = new_root->left;
+void left_rotate(set *tree ,SetNode *node){
+    SetNode *new_root = node->right;
+    SetNode *tmp = new_root->left;
 
     new_root->left = node;
     node->right = tmp;
@@ -96,7 +96,7 @@ void left_rotate(set *tree ,Node *node){
 
 
 //private
-void balance_node(set *tree , Node *node){
+void balance_node(set *tree , SetNode *node){
     int left_h = node->left ? node->left->height : 0;
     int right_h = node->right ? node->right->height : 0;
 
@@ -130,7 +130,7 @@ void balance_node(set *tree , Node *node){
 }
 
 //private
-void balance_tree(set *tree, Node *node){
+void balance_tree(set *tree, SetNode *node){
     while (node)
     {
         update_height(node);
@@ -142,16 +142,16 @@ void balance_tree(set *tree, Node *node){
 //private
 
 //private
-Node *inorderd_successor( Node *node){
+SetNode *inorderd_successor( SetNode *node){
     if(node->right){
-        Node *curr = node->right;
+        SetNode *curr = node->right;
         while(curr->left){
             curr = curr->left;
         }
         return curr;
     }
-    Node *p = node->parent;
-    Node *curr =node;
+    SetNode *p = node->parent;
+    SetNode *curr =node;
     while(p && curr == p->right){
         curr = p;
         p = p->parent;
@@ -162,8 +162,8 @@ Node *inorderd_successor( Node *node){
 
 //public
 void insert_set(set *tree,int val){
-    Node *curr = tree->root;
-    Node *new_node = init_node(val,NULL,NULL,NULL);
+    SetNode *curr = tree->root;
+    SetNode *new_node = init_node(val,NULL,NULL,NULL);
     if(!curr){
         tree->root = new_node;
         return;
@@ -193,8 +193,8 @@ void insert_set(set *tree,int val){
     balance_tree(tree,new_node);
 }
 //private
-Node *min_in_subtree(Node *node){
-    Node *curr = node;
+SetNode *min_in_subtree(SetNode *node){
+    SetNode *curr = node;
     while(curr && curr->left){
         curr = curr->left;
     }
@@ -203,7 +203,7 @@ Node *min_in_subtree(Node *node){
 
 //public
 int contains_set(set *tree , int val){
-    Node *curr = tree->root;
+    SetNode *curr = tree->root;
     while(curr){
         if(curr->val == val){
             return 1;
@@ -221,7 +221,7 @@ int contains_set(set *tree , int val){
 //public
 
 void delete_set(set *tree , int val){
-    Node *curr = tree->root;
+    SetNode *curr = tree->root;
     while(curr){
         if(curr->val  > val){
             curr= curr->left;
@@ -236,7 +236,7 @@ void delete_set(set *tree , int val){
     if(!curr) return;
 
 
-    Node *node_to_rebalance = NULL;
+    SetNode *node_to_rebalance = NULL;
     if(!curr->right && !curr->left){
         node_to_rebalance = curr->parent;
         if(curr->parent){
@@ -249,7 +249,7 @@ void delete_set(set *tree , int val){
         free(curr);
     }
     else if(!curr->left || !curr->right){
-        Node *child = curr->left ? curr->left : curr->right;
+        SetNode *child = curr->left ? curr->left : curr->right;
         node_to_rebalance = curr->parent;
         if(curr->parent){
             if (curr->parent->left == curr) curr->parent->left = child;
@@ -261,10 +261,10 @@ void delete_set(set *tree , int val){
         free(curr);
     }
     else{
-        Node *succ = min_in_subtree(curr->right);
+        SetNode *succ = min_in_subtree(curr->right);
         curr->val = succ->val; 
 
-        Node *child = succ->right; 
+        SetNode *child = succ->right; 
         node_to_rebalance = succ->parent;
         if (succ->parent->left == succ) succ->parent->left = child;
         else succ->parent->right = child;
@@ -282,7 +282,7 @@ void init_set(set *tree) {
 }
 
 //private
-void free_subtree(Node *node) {
+void free_subtree(SetNode *node) {
     if (node) {
         free_subtree(node->left);
         free_subtree(node->right);

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "data_structures_C/set.h"
 #include "data_structures_C/array_2d.h"
 #include "data_structures_C/grid.h"
@@ -41,21 +42,31 @@ int solve_dfs_sudoku_c(grid *g, int row, int col) {
 }
 
 
-int solve_dlx_naive_sudoku_c(grid *g, int row,int col){
+int solve_dlx_naive_sudoku_c(grid *g){
     Array2D *dlx_matrix = transform_grid_to_DLX_naive(g);
     DLX *dlx = init_DLX(dlx_matrix);
     ListOfLists *solutions = solve_dlx(dlx);
-    //TODO
+    for(int i =0 ; i< solutions->size;i++){
+        Array2D *new_array = from_list_of_lists_to_array(dlx,solutions,i,g->grid_size);
+        grid *new_grid = init_grid(new_array->array,new_array->rows);
+        print_grid(new_grid);
+        free_grid(new_grid);
+    }
+    return 0;
 }
 
 
 int main(){
-    char *file_name = "../../sudokus/1sudoku.txt";
+    char *file_name = "sudokus/1sudoku.txt";
     int size;
     int **arr = read_and_validate_sudoku(file_name,&size);
     grid* main_grid = init_grid(arr,size);
     print_grid(main_grid);
+    printf("dfs solution\n");
     solve_dfs_sudoku_c(main_grid,0,0);
+    printf("here is DLX solution\n");
+    solve_dlx_naive_sudoku_c(main_grid);
     print_grid(main_grid);
     free_grid(main_grid);
+
 }

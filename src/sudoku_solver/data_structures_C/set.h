@@ -1,17 +1,17 @@
 
 
-typedef struct Node
+typedef struct SetNode
 {
     int val;
-    struct Node *left;
-    struct Node *right;
-    struct Node *parent;
+    struct SetNode *left;
+    struct SetNode *right;
+    struct SetNode *parent;
     int height;
-}Node;
+}SetNode;
 
 typedef struct set
 {
-    Node *root;
+    SetNode *root;
 
 }set;
 

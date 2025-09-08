@@ -1,6 +1,16 @@
 #include "ListOfLists.h"
 
 
+
+List *init_List(){
+    List* new_list = (List*)malloc(sizeof(List));
+    new_list->head = NULL;
+    new_list->tail = NULL;
+    return new_list;
+}
+
+
+
 ListOfLists* init_ListOfLists(){
     ListOfLists *new_list = (ListOfLists*)malloc(sizeof(ListOfLists));
     new_list->head = NULL;
@@ -14,6 +24,7 @@ void free_List(List* list) {
     ListNode* current = list->head;
     while (current) {
         ListNode* next = current->next;
+        free(current->data);
         free(current);
         current = next;
     }
@@ -25,7 +36,6 @@ void free_ListOfLists(ListOfLists* lists) {
     ListOfListsNode* current = lists->head;
     while (current) {
         ListOfListsNode* next = current->next;
-        free_List(current->data);
         free(current);
         current = next;
     }
@@ -33,9 +43,9 @@ void free_ListOfLists(ListOfLists* lists) {
 }
 
 
-void push_node(List *list , int val){
+void push_node(List *list , Node *pointer){
     ListNode *node = (ListNode*)malloc(sizeof(ListNode));
-    node->data = val;
+    node->data = pointer;
     node->next = NULL;
     if(!list->head){
         list->head = node;
@@ -49,7 +59,7 @@ void push_node(List *list , int val){
 
 
 void push_list(ListOfLists *list , List *new_list){
-    ListOfListsNode *node = (ListNode*)malloc(sizeof(ListNode));
+    ListOfListsNode *node = (ListOfListsNode*)malloc(sizeof(ListOfListsNode));
     node->data = new_list;
     node->next = NULL;
     if(!list->head){

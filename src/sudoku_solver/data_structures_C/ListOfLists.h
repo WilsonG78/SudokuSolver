@@ -1,9 +1,14 @@
+#ifndef LISTOFLISTS_H
+#define LISTOFLISTS_H
 #include <stdlib.h>
+#include "node.h"
+
+struct  ListNode;
 
 
 typedef struct ListNode{
-    ListNode *next;
-    int data
+    struct ListNode *next;
+    Node *data;
 } ListNode;
 
 
@@ -13,7 +18,7 @@ typedef struct List{
 }List;
 
 typedef struct ListOfListsNode{
-    ListOfListsNode* next;
+    struct ListOfListsNode* next;
     List *data;
 }ListOfListsNode;
 
@@ -25,10 +30,12 @@ typedef struct ListOfLists
     int size;
 }ListOfLists;
 
+ListOfLists* init_ListOfLists();
+List *init_List();
+void free_List(List* list);
+void free_ListOfLists(ListOfLists* lists);
+void push_node(List *list , Node *pointer);
+void push_list(ListOfLists *list , List *new_list);
 
-List *init_List(){
-    List* new_list = (List*)malloc(sizeof(List));
-    new_list->head = NULL;
-    new_list->tail = NULL;
-    return new_list;
-}
+
+#endif
