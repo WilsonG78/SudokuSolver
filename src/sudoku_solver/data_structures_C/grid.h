@@ -1,3 +1,5 @@
+#ifndef GRID
+#define GRID
 #include "set.h"
 #include "array_2d.h"
 #include <math.h>
@@ -16,3 +18,5 @@ grid* init_grid(int **arr, int size);
 void free_grid(grid *g);
 int box_id_grid(int size, int i ,int j);
 void print_grid(grid *g);
+int equal_grid(grid *grid_a , grid* grid_b);
+#endif GRID

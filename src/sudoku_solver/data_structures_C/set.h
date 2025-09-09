@@ -1,4 +1,5 @@
-
+#ifndef SET
+#define SET
 
 typedef struct SetNode
 {
@@ -22,3 +23,4 @@ void delete_set(set *tree, int val);
 void free_set(set *tree);
 
 
+#endif SET

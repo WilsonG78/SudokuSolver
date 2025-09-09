@@ -1,5 +1,6 @@
 #include "read_data.h"
 
+
 int **read_and_validate_sudoku(const char *filename ,int *n){
     FILE *file =fopen(filename ,"r");
     if(!file){
@@ -143,4 +144,65 @@ invalid:
     free(col_seen);
     free(box_seen);
     return 0;
+}
+
+int **read_sudoku_exchange_bank(char *filename, int *n, int line_number) {
+    FILE *file = fopen(filename, "r");
+    if (!file) {
+        perror("Error opening file");
+        return NULL;
+    }
+
+    *n = 9; // standard Sudoku
+
+    int **grid = malloc(*n * sizeof(int*));
+    if (!grid) {
+        perror("malloc failed");
+        fclose(file);
+        return NULL;
+    }
+    for (int i = 0; i < *n; i++) {
+        grid[i] = malloc(*n * sizeof(int));
+        if (!grid[i]) {
+            perror("malloc failed");
+            for (int j = 0; j < i; j++) free(grid[j]);
+            free(grid);
+            fclose(file);
+            return NULL;
+        }
+    }
+
+    // Each line is exactly 100 bytes
+    if (fseek(file, line_number * 101L, SEEK_SET) != 0) {
+        fprintf(stderr, "Error seeking to line %d\n", line_number);
+        goto error;
+    }
+
+    char line[101]; // 100 bytes + null terminator
+    if (fread(line, 1, 100, file) != 100) {
+        fprintf(stderr, "Error reading line %d\n", line_number);
+        goto error;
+    }
+    line[100] = '\0';
+    // Digits are at index 13..92 (81 characters)
+    for (int i = 0; i < 9; i++) {
+        for (int j = 0; j < 9; j++) {
+            char c = line[13 + i*9 + j];
+            if (c >= '0' && c <= '9') {
+                grid[i][j] = c - '0';
+            } else {
+                fprintf(stderr, "Invalid character '%c' in puzzle\n", c);
+                goto error;
+            }
+        }
+    }
+
+    fclose(file);
+    return grid;
+
+error:
+    for (int i = 0; i < *n; i++) free(grid[i]);
+    free(grid);
+    fclose(file);
+    return NULL;
 }

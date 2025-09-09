@@ -1,0 +1,12 @@
+setup.py
+sudoku_bindings.cpp
+data_structures_C/DLX.c
+data_structures_C/ListOfLists.c
+data_structures_C/array_2d.c
+data_structures_C/grid.c
+data_structures_C/read_data.c
+data_structures_C/set.c
+sudoku_solver.egg-info/PKG-INFO
+sudoku_solver.egg-info/SOURCES.txt
+sudoku_solver.egg-info/dependency_links.txt
+sudoku_solver.egg-info/top_level.txt

@@ -1,6 +1,12 @@
+from __future__ import annotations
 import numpy as np
 import os
 import math
+from CSudokuSolver import solve_dfs as solve_dfs_c, solve_dlx as solve_dlx_c
+from typing import List
+
+
+
 
 class Grid:
     grid: np.array
@@ -24,28 +30,31 @@ class Grid:
         rows = input_data.split("\n")
         n = len(rows)
         self.grid_size = n
-        
+
         try:
-            grid_list = [list(map(int,row.split())) for row in rows]
+            grid_list = [list(map(int, row.split())) for row in rows]
         except Exception as e:
             raise ValueError(f"Error parsing number {e}")
-        
+
         if any(len(row) != n for row in grid_list):
             raise ValueError(f"Invalid row lenght")
-        if math.isqrt(n) **2 != n:
+        if math.isqrt(n) ** 2 != n:
             raise ValueError(f"Invalid lenght of ")
-        
-        self.grid = np.array(grid_list , dtype =int)
+
+        self.grid = np.array(grid_list, dtype=int)
         self.box_size = math.isqrt(n)
         if np.any(self.grid < 0) or np.any(self.grid > self.grid_size):
             raise ValueError(f"Numbers must be between 0 and {self.grid_size}")
 
-
     def init_by_array(self, array) -> None:
-        if len(array.shape) != 2 or array.shape[0] != array.shape[1] or math.isqrt(array.shape[0])**2 != array.shape[0]:
+        if (
+            len(array.shape) != 2
+            or array.shape[0] != array.shape[1]
+            or math.isqrt(array.shape[0]) ** 2 != array.shape[0]
+        ):
             raise ValueError("Shape of array is not correct")
         self.grid_size = array.shape[0]
-        for value in  array.flat:
+        for value in array.flat:
             if value > self.grid_size or value < 0:
                 raise ValueError(f"Bad number value to {value}")
         self.grid = array
@@ -53,23 +62,22 @@ class Grid:
         if np.any(self.grid < 0) or np.any(self.grid > self.grid_size):
             raise ValueError(f"Numbers must be between 0 and {self.grid_size}")
 
-    def __str__(self):
+    def __str__(self) -> str:
         n = self.grid.shape[0]
         b = int(math.isqrt(n))
-        
+
         cell_w = max(1, max(len(str(int(x))) for x in self.grid.flatten()))
-        
+
         def format_row(row: np.ndarray) -> str:
             groups = []
             for start in range(0, n, b):
-                cells = [str(int(v)).rjust(cell_w) for v in row[start:start+b]]
+                cells = [str(int(v)).rjust(cell_w) for v in row[start : start + b]]
                 groups.append(" " + " ".join(cells) + " ")
             return "|" + "|".join(groups) + "|"
-        
 
         sample_row = format_row(np.zeros(n, dtype=int))
-        hline = "".join('+' if ch == '|' else '-' for ch in sample_row)
-        
+        hline = "".join("+" if ch == "|" else "-" for ch in sample_row)
+
         lines = [hline]
         for i in range(n):
             lines.append(format_row(self.grid[i]))
@@ -77,11 +85,19 @@ class Grid:
                 lines.append(hline)
         return "\n".join(lines)
 
-        
+    def solve_dlx(self) -> list[Grid]:
+        solutions = solve_dlx_c(self.grid)
+        return [Grid(solution) for solution in solutions]
+
+    def solve_dfs(self) -> list[Grid]:
+        solutions = solve_dfs_c(self.grid)
+        return [Grid(solution) for solution in solutions]
 
 
 if __name__ == "__main__":
-    new_grid = Grid(file_name= '../../sudokus/1sudoku.txt')
+    new_grid = Grid(file_name="../../sudokus/1sudoku.txt")
     print(new_grid)
-
-
+    solutions = solve_dlx_c(new_grid.grid)
+    grids = [Grid(solution) for solution in solutions]
+    for grid in grids:
+        print(grid)

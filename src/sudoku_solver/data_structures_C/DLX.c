@@ -54,10 +54,8 @@ void from_stack_to_ListOfLists(Stack* stack , ListOfLists *list_of_lists){
     Vertex *curr = stack->head;
     List *new_list = init_List();
     while(curr){
-        if(curr->data && curr->data){
-            Node *node = curr->data;
-            push_node(new_list,node);
-        }
+        Node *row_node = curr->data;
+        push_node(new_list,row_node);
         curr = curr->next;
     }
     push_list(list_of_lists,new_list);
@@ -71,21 +69,26 @@ DLX* init_DLX(Array2D* problem_matrix){
         perror("Problem Matrix is NULL");
         return NULL;
     }
+
     DLX *dlx = (DLX*)malloc(sizeof(DLX));
-
-
+    if(!dlx){
+        perror("Dlx matrix is not allocated");
+    }
     int cols = problem_matrix->cols, rows = problem_matrix->rows;
     dlx->cols = cols;
     dlx->rows = rows;
     dlx->solution = (Node **)malloc(rows * sizeof(Node*));
     dlx->solutionSize = 0;
     
+    //root node
     dlx->root = (ColNode *)malloc(sizeof(ColNode));
     dlx->root->node = (Node*)malloc(sizeof(Node));
     dlx->root->node->colID = -1;
     dlx->root->node->rowID = -1;
     dlx->root->node->column = dlx->root;
     dlx->root->size = 0;
+
+    //it is gonna be fixed
     dlx->root->node->left = dlx->root->node;
     dlx->root->node->right = dlx->root->node;
     dlx->root->node->up = dlx->root->node;
@@ -98,9 +101,35 @@ DLX* init_DLX(Array2D* problem_matrix){
     Node **helper_nodes_rows = (Node**)malloc(sizeof(Node*) *rows );
     Node **first_in_row = (Node**)malloc(sizeof(Node*) *rows );
 
+    for (int j = 0; j < cols; j++) {
+        dlx->columns[j].node = (Node*)malloc(sizeof(Node));
+        ColNode *curr_col = &dlx->columns[j];
+        curr_col->size = 0;
+
+        curr_col->node->colID = j;
+        curr_col->node->rowID = -1;
+        curr_col->node->column = curr_col;
+
+        // init as vertical cycle
+        curr_col->node->up = curr_col->node;
+        curr_col->node->down = curr_col->node;
+    }
+
+    // link all columns in a doubly-linked horizontal cycle with root
+    Node *prev = dlx->root->node;
+    for (int j = 0; j < cols; j++) {
+        Node *col_node = dlx->columns[j].node;
+
+        prev->right = col_node;
+        col_node->left = prev;
+
+        prev = col_node;
+    }
+    // close the cycle
+    prev->right = dlx->root->node;
+    dlx->root->node->left = prev;
 
     for(int j=0 ; j < cols;j++){
-        dlx->columns[j].node = (Node * )malloc(sizeof(Node));
         ColNode *curr_col = &dlx->columns[j];
         curr_col->node->down =curr_col->node;
         curr_col->node->up = curr_col->node;
@@ -167,53 +196,53 @@ DLX* init_DLX(Array2D* problem_matrix){
     return dlx;
 }
 
-void cover_column(DLX *dlx,Node *node){
-    int col = node->colID;
-    dlx->columns[col].node->left->right = dlx->columns[col].node->right;
-    dlx->columns[col].node->right->left = dlx->columns[col].node->left;
+static inline void cover_column_node(Node *col_node) {
+    col_node->right->left = col_node->left;
+    col_node->left->right = col_node->right;
+}
+
+static inline void uncover_column_node(Node *col_node) {
+    col_node->left->right = col_node;
+    col_node->right->left = col_node;
 }
 
 
-void cover(DLX* dlx,Node *node){
-    ColNode* col_to_cover = &dlx->columns[node->colID];
 
-    cover_column(dlx,col_to_cover->node);
-    //Cover rows
-    Node* row = col_to_cover->node->down;
-    while (row != col_to_cover->node) {
-        Node *right = row->right;
-        while (right != row) {
-            right->up->down = right->down;
-            right->down->up = right->up;
-            dlx->columns[right->colID].size--;
-            right = right->right;
+void cover(DLX *dlx, Node *col_node) {
+    if (!dlx || !col_node) return;
+    // remove column header from header list
+    cover_column_node(col_node);
+
+    // for each row i in column c (downwards)
+    for (Node *i = col_node->down; i != col_node; i = i->down) {
+        // for each node j in row i (rightwards)
+        for (Node *j = i->right; j != i; j = j->right) {
+            // unlink j vertically from its column
+            j->up->down = j->down;
+            j->down->up = j->up;
+            // decrement column size
+            dlx->columns[j->colID].size--;
         }
-        row = row->down;
     }
 }
 
-void uncover_column(DLX* dlx,Node *node){
-    int col = node->colID;
-    dlx->columns[col].node->left->right = dlx->columns[col].node;
-    dlx->columns[col].node->right->left = dlx->columns[col].node;
-}
 
-void uncover(DLX *dlx, Node *node){
-    
-    ColNode *col = &dlx->columns[node->colID];
-    Node* row = col->node->down;
-    while(row != col->node){
-        Node *left = row->left;
-        while (left != row)
-        {
-            dlx->columns[left->colID].size++;
-            left->up->down = left;
-            left->down->up = left;
-            left = left->left;
+void uncover(DLX *dlx, Node *col_node) {
+    if (!dlx || !col_node) return;
+
+    // for each row i in column c, going upwards (reverse order)
+    for (Node *i = col_node->up; i != col_node; i = i->up) {
+        // for each node j in row i going leftwards (reverse order)
+        for (Node *j = i->left; j != i; j = j->left) {
+            // restore vertical links
+            dlx->columns[j->colID].size++;
+            j->up->down = j;
+            j->down->up = j;
         }
-       row = row->up;
     }
-    uncover_column(dlx,col->node);
+
+    // restore column header into header list
+    uncover_column_node(col_node);
 }
 
 int isEmpty(DLX *dlx){
@@ -221,61 +250,57 @@ int isEmpty(DLX *dlx){
     return 0;
 }
 
-ColNode* get_min_col(DLX *dlx){
-    printf("in get_min_col  ");
-    Node *curr = dlx->root->node->right , *min_node = curr;
-    if(!curr){
-        printf("NULL CURR");
-    }
+ColNode* get_min_col(DLX *dlx) {
+    if (!dlx || !dlx->root || !dlx->root->node) return NULL;
+    Node *curr = dlx->root->node->right;
+    if (curr == dlx->root->node) return NULL; 
+
+    Node *min_node = curr;
     int min = INT_MAX;
-    while(curr != dlx->root->node){
-        
-        int curr_size = dlx->columns[curr->colID].size;
-        printf("col ID %d size_of_col %d \n", curr->colID , curr_size);
-        if(curr_size < min) {
-            min =curr_size;
+    for (; curr != dlx->root->node; curr = curr->right) {
+        int s = dlx->columns[curr->colID].size;
+        if (s < min) {
+            min = s;
             min_node = curr;
-        }
-        curr = curr->right;
-        if(!curr){
-            printf("NULL CURR  ");
+            if (min == 0) break;
         }
     }
-    printf("min col id %d",min_node->colID);
     return &dlx->columns[min_node->colID];
 }
 
-
-Stack* rec(DLX *dlx , Stack *partial_solution, ListOfLists *solutions){
-    printf("depth\n");
+void rec(DLX *dlx , Stack *partial_solution, ListOfLists *solutions){
     if(isEmpty(dlx)){
         from_stack_to_ListOfLists(partial_solution,solutions);
-        return partial_solution;
+        return;
     }
 
     ColNode *min_col = get_min_col(dlx);
-    if(min_col->size == 0) return NULL;
-    Node *curr_node = min_col->node->down;
-    while(curr_node != min_col->node){
-        printf("in the loop\n");
-        push_stack(partial_solution,curr_node);
-        Node *right = curr_node->right;
-        cover(dlx,curr_node);
-        while (right != curr_node) {
-            cover(dlx, right);
-            right = right->right;
+    if(min_col->size == 0) return;
+    for (Node *r = min_col->node->down; r != min_col->node; /* r updated inside */) {
+        Node *next_row = r->down; 
+
+        push_stack(partial_solution, r);
+
+        // cover column c
+        cover(dlx, min_col->node);
+        
+        // cover columns for each node in row r
+        for (Node *j = r->right; j != r; j = j->right) {
+            cover(dlx, j->column->node);
         }
-        Stack *solution_val = rec(dlx,partial_solution,solutions);
-        Node *left = curr_node->left;
-        while (left != curr_node) {
-            uncover(dlx, left);
-            left = left->left;
+
+        rec(dlx, partial_solution, solutions);
+
+        // uncover
+        for (Node *j = r->left; j != r; j = j->left) {
+            uncover(dlx, j->column->node);
         }
-        uncover(dlx,curr_node);
+        uncover(dlx, min_col->node);
+
         pop_stack(partial_solution);
-        curr_node = curr_node->down;
+
+        r = next_row;
     }
-    return NULL;
 }
 
 ListOfLists* solve_dlx(DLX*dlx){
@@ -292,7 +317,7 @@ void free_DLX(DLX *dlx){
 }
 
 
-int index_cell_contains(int col,int row,int grid_size){
+int index_cell_contains(int row,int col,int grid_size){
     return row * grid_size + col;
 }
 
@@ -321,7 +346,17 @@ void set_up_dlx_matrix(Array2D *matrix,int i,int j,int grid_size,int num,int cou
 Array2D* transform_grid_to_DLX_naive(grid *g){
     int n = g->grid_size;
     int cols = 4 * n *n;
-    int rows =  n*n + g->to_find *(n-1);
+    int rows = 0;
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < n; j++){
+            int val = get_value_array_2d(g->array, i, j);
+            if(val) 
+                rows += 1;   
+            else 
+                rows += n;   
+        }
+    }
+
     Array2D *dlx_matrix = init_array_2d(rows,cols);
     int number_of_row = 0;
     for(int i =0;i < n; i++){
@@ -345,48 +380,61 @@ Array2D* transform_grid_to_DLX_naive(grid *g){
 void from_dlx_data_to_array_cords(int *arr, int grid_size , int* res_arr){
     //So we return a pointer to arr where arr is [row,col,number] format
     for(int i =0 ; i <3 ;i++){
-        if( *arr <  grid_size * grid_size){
-            res_arr[0] = *arr / grid_size;
-            res_arr[1] = *arr % grid_size;
+        if( arr[i] <  grid_size * grid_size){
+            res_arr[0] = arr[i] / grid_size;
+            res_arr[1] = arr[i] % grid_size;
         }
-        if(grid_size * grid_size <= *arr &&  *arr < 2 * grid_size * grid_size){
-            res_arr[0] = (*arr - grid_size * grid_size) / grid_size;
-            res_arr[2] = (*arr - grid_size * grid_size) % grid_size +1;
+        if(arr[i] &&  arr[i] < 2 * grid_size * grid_size){
+            res_arr[0] = (arr[i] - grid_size * grid_size) / grid_size;
+            res_arr[2] = (arr[i] - grid_size * grid_size) % grid_size +1;
         }
     }
     return;
 
 }
 
-Array2D* from_list_of_lists_to_array(DLX *dlx,ListOfLists *solutions,int solution_index, int grid_size){
-    if (!dlx || !solutions || solution_index < 0 || solution_index >= solutions->size)
+Array2D* from_list_of_lists_to_array(DLX *dlx, ListOfLists *solutions, int solution_index, int grid_size){
+    if(!dlx || !solutions || solution_index < 0 || solution_index >= solutions->size)
         return NULL;
-    Array2D *grid_matrix = init_array_2d(grid_size,grid_size);
-    
+
+    Array2D *grid_matrix = init_array_2d(grid_size, grid_size);
+
+    // Navigate to the desired solution
     ListOfListsNode *curr = solutions->head;
-    for(int i =0 ; i < solution_index && curr;i++){
+    for(int i = 0; i < solution_index && curr; i++)
         curr = curr->next;
-    }
-    if (!curr) return NULL;
-    List *list = curr->data;
-    ListNode *curr_list_node = list->head;
-    Node *curr_row;
-    while(curr_list_node){
-        curr_row = curr_list_node->data;
-        Node *curr_node_in_row = curr_row;
-        int arr[3] ,res_arr[3] ,next_index = 0;
+    if(!curr) return NULL;
+
+    List *solution = curr->data;
+    ListNode *node_in_solution = solution->head;
+
+    while(node_in_solution){
+        Node *row_head = node_in_solution->data;
+        Node *n = row_head;
+        int row = -1, col = -1, num = -1;
+
         do {
-            if(curr_node_in_row){
-                arr[next_index] =curr_node_in_row->colID;
-                next_index++;
+            int c = n->colID;
+
+            if(c < grid_size * grid_size){       // cell constraint
+                row = c / grid_size;
+                col = c % grid_size;
+            } else if(c < 2 * grid_size * grid_size){ // row constraint
+                num = (c - grid_size * grid_size) % grid_size + 1;
+            } else if(c < 3 * grid_size * grid_size){ // column constraint (optional safety)
+                num = (c - 2 * grid_size * grid_size) % grid_size + 1;
             }
-            curr_node_in_row = curr_node_in_row->right;
+
+            n = n->right;
+        } while(n != row_head);
+
+        if(row >= 0 && col >= 0 && num > 0){
+            set_value_array_2d(grid_matrix, row, col, num);
         }
-        while(curr_node_in_row != curr_row);
-        from_dlx_data_to_array_cords(arr,dlx->cols,res_arr);
-        set_value_array_2d(grid_matrix,res_arr[0],res_arr[1],res_arr[2]);
-        curr_list_node = curr_list_node->next;
+
+        node_in_solution = node_in_solution->next;
     }
+
     return grid_matrix;
 }
 
@@ -394,4 +442,3 @@ Array2D* from_list_of_lists_to_array(DLX *dlx,ListOfLists *solutions,int solutio
 int number_of_solutions(ListOfLists *list){
     return list->size;
 }
-

@@ -117,3 +117,18 @@ int box_id_grid(int size, int i , int j ){
     int sub_n = (int)sqrt(size);
     return (i /sub_n) * sub_n + j/sub_n;
 }
+
+
+
+int equal_grid(grid *grid_a , grid* grid_b){
+    if(grid_a->grid_size != grid_b->grid_size) return 0;
+    int n = grid_a->grid_size;
+    for(int i =0 ;i <n;++i){
+        for(int  j =0 ; j< n;++j){
+            if(get_value_array_2d(grid_a->array,i,j) != get_value_array_2d(grid_b->array,i,j)){
+                return 0;
+            }
+        }
+    }
+    return 1;
+}

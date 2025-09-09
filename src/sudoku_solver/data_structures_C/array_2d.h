@@ -1,4 +1,5 @@
-
+#ifndef ARRAY_2D_H
+#define ARRAY_2D_H
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -14,3 +15,4 @@ int get_value_array_2d(Array2D *arr, int i, int j);
 int set_value_array_2d(Array2D *arr, int i, int j, int val);
 void set_from_arr_array_2d(Array2D *array_2d , int **arr, int rows, int cols);
 
+#endif
