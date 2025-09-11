@@ -16,7 +16,7 @@ Sudoku Solver is a high-performance Sudoku solving application implemented in **
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/<your-username>/SudokuSolver.git
+git clone https://github.com/WilsonG78/SudokuSolver.git
 cd SudokuSolver
 docker-compose up --build
 ```
