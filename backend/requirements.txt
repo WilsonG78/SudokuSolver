@@ -1,0 +1,6 @@
+numpy
+pytest
+flask
+typing
+flask_cors
+waitress
