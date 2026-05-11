@@ -6,6 +6,8 @@ import numpy as np
 app = Flask(__name__)
 CORS(app)
 
+VALID_SOLVERS = {"DLX", "DFS"}
+
 @app.route('/api/submit_grid' ,methods = ["POST"])
 def submit_grid():
     try:
@@ -13,40 +15,33 @@ def submit_grid():
         grid = data.get('grid')
         solver = data.get('solver')
 
-        print(f"Grid: {grid}")
-        print(f"Solver {solver}")
+        if solver not in VALID_SOLVERS:
+            return jsonify({"status": "error", "error": f"Unknown solver '{solver}'. Use 'DLX' or 'DFS'."}), 400
 
-        grids = solve(grid,solver)
+        grids = solve(grid, solver)
         list_of_grids = [solution.tolist() for solution in grids]
         for grid in grids:
-            newGrid = Grid(grid)
-            print(newGrid)
+            print(Grid(grid))
         return jsonify({
-                "status": "success", 
-                "message": "Grid received",
+                "status": "success",
                 "solver": solver,
                 "solutions": list_of_grids,
                 "solution_count": len(grids)
             })
     except Exception as e:
         print(f"Error: {e}")
-        return jsonify({"status": "not success",
-                       "error": str(e)})
+        return jsonify({"status": "error", "error": str(e)}), 500
 
-def list_to_np(list_grid: list[list[str]])->np.array:
+def list_to_np(list_grid: list[list[str]]) -> np.ndarray:
     list_grid = [[0 if col == '' else int(col) for col in row] for row in list_grid]
-    arr = np.array(list_grid)
-    return arr
+    return np.array(list_grid)
 
-def solve(list_grid: list[list[str]],solver:str):
+def solve(list_grid: list[list[str]], solver: str):
     arr = list_to_np(list_grid)
     new_grid = Grid(arr)
-    grids = None
     if solver == "DLX":
-        grids = new_grid.solve_dlx_np()
-    elif solver == "DFS":
-        grids = new_grid.solve_dfs_np()
-    return grids
+        return new_grid.solve_dlx_np()
+    return new_grid.solve_dfs_np()
     
 
 

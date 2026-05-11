@@ -1,6 +1,5 @@
 import React, { useState, useRef} from "react";
 import "./SudokuGrid.css";
-const backendUrl = import.meta.env.VITE_BACKEND_URL;
 interface SudokuGridProps {
   size: number; // NxN grid
 }
@@ -62,7 +61,7 @@ const SudokuGrid: React.FC<SudokuGridProps> = ({ size }) => {
       return;
     }
     try {
-      const response = await fetch(`${backendUrl}/api/submit_grid`, {
+      const response = await fetch(`/api/submit_grid`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
@@ -73,19 +72,15 @@ const SudokuGrid: React.FC<SudokuGridProps> = ({ size }) => {
 
         const data = await response.json();
 
-        if(data.status == 'success' && data.solution_count > 0){
-
-          
+        if(data.status === 'success' && data.solution_count > 0){
           const solvedGrid: string[][] = data.solutions[0];
-          
           setGrid(solvedGrid);
-          console.log("This is response");
         }
-        else if(data.status === 'success'){
-          console.log("Solved");
+        else if(data.status === 'success' && data.solution_count === 0){
+          alert("This puzzle has no solution.");
         }
         else{
-          alert("No solution");
+          alert(`Error: ${data.error ?? "Unknown error"}`);
         }
 
         console.log("Response from backend:", data);

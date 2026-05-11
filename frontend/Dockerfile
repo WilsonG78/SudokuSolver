@@ -12,14 +12,11 @@ COPY . .
 RUN npm run build
 
 #PRODUCTION
-FROM node:18-alpine AS production
+FROM nginx:alpine AS production
 
-WORKDIR /app
-
-RUN npm install -g serve
-
-COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 8080
 
-CMD ["serve", "-s", "dist" ,"-l", "8080"]
+CMD ["nginx", "-g", "daemon off;"]

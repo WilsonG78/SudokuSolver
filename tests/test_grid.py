@@ -2,7 +2,7 @@ import pytest
 import os
 import numpy as np
 import math
-from src.sudoku_solver.grid import Grid
+from sudoku_solver.grid import Grid
 
 def test_valid_grid_from_np_array():
     valid_arrays = [np.array([

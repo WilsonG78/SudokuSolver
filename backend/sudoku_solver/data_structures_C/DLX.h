@@ -47,4 +47,4 @@ Array2D* transform_grid_to_DLX_naive(grid *g);
 ListOfLists * solve_dlx(DLX *dlx);
 Array2D* from_list_of_lists_to_array(DLX *dlx,ListOfLists *solutions,int solution_index,int grid_size);
 
-#endif DLX_H
+#endif // DLX_H

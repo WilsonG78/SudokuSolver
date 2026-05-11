@@ -13,9 +13,3 @@ sudoku_solver/data_structures_C/array_2d.c
 sudoku_solver/data_structures_C/grid.c
 sudoku_solver/data_structures_C/read_data.c
 sudoku_solver/data_structures_C/set.c
-sudoku_solver/data_structures_C/DLX.c
-sudoku_solver/data_structures_C/ListOfLists.c
-sudoku_solver/data_structures_C/array_2d.c
-sudoku_solver/data_structures_C/grid.c
-sudoku_solver/data_structures_C/read_data.c
-sudoku_solver/data_structures_C/set.c
