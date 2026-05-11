@@ -1,29 +1,55 @@
-backend/sudoku_solver/build
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
 
-*.egg-info
+# C / Pybind11 build artifacts
+backend/build/
+*.so
+*.pyd
+*.o
+*.obj
+*.exp
+*.lib
+
+# Windows binaries
 *.exe
 
+# Test & coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Env files
+.env
+.env.*
+!.env.example
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
-lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
+# Frontend build
+node_modules/
+dist/
+dist-ssr/
 *.local
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# Test data (external repo clone)
+sudoku-exchange-puzzle-bank/
